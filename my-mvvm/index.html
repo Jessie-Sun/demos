@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="https://unpkg.com/vue"></script> -->
+    <script src="./MVue.js"></script>
+    <script src="./Observer.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <h2>{{person.name}} -- {{person.age}}</h2>
+        <h3>{{person.fav}}</h3>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+        </ul>
+        <h3>{{msg}}</h3>
+        <div v-text="person.name"></div>
+        <div v-text="msg"></div>
+        <div v-html="htmlStr"></div>
+        <input :value="person.name">
+        <input type="text" v-model="msg">
+        <button v-on:click="handleClick">On</button>
+        <button @click="handleClick">@</button>
+    </div>
+    <script>
+        const vm = new MVue({
+            el: "#app",
+            data: {
+                person: {
+                    name: "jessie",
+                    age:18,
+                    fav: "画画"
+                },
+                msg: "学习mvvm的实现原理",
+                htmlStr: "<h3>My Vue</h3>"
+            },
+            methods: {
+                handleClick(e) {
+                    const name = this.person.name;
+                    this.person.name = name === "jessie" ? "Jessie Sun" : "jessie";
+                }
+            }
+        })
+    </script>
+</body>
+</html>
