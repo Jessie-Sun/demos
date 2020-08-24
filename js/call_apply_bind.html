@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>call_apply_bind</title>
+</head>
+<body>
+    <script>
+            Function.prototype.mycall = function(myobj = window, ...args) {
+                if(typeof myobj === "function") {
+                    throw new TypeError("error");
+                }
+                const fn = Symbol("fn"); //unique
+                myobj[fn] = this;
+                const result = myobj[fn](...args);
+                delete myobj[fn];
+                return result;
+            }
+
+            Function.prototype.myapply = function(myobj = window, args = []) {
+                if(typeof myobj === "function") {
+                    throw new TypeError("error");
+                }
+                const fn = Symbol("fn"); //unique
+                myobj[fn] = this;
+                const result = myobj[fn](...args);
+                delete myobj[fn];
+                return result;
+            }
+
+            Function.prototype.mybind = function(myobj, ...args) {
+                if(typeof myobj === "function") {
+                    throw new TypeError("error");
+                }
+
+                let self = this;
+                let bound = function() {
+                    // 检测 New , 如果当前函数的this指向的是构造函数中的this 则判定为new 操作
+                    let _this = this instanceof self ? this : myobj;
+                    self.apply(_this, [...args, ...arguments]);
+                };
+                return bound;
+            }
+
+
+    </script>
+</body>
+</html>

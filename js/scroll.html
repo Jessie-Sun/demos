@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style>
+        #scroll-area {
+            height: 500px;
+            overflow-y: auto;
+            border: solid 1px #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="scroll-area" @scroll="onScroll">
+        <div>{{msg}}</div>
+        <div v-for="num in list">{{num}}</div>
+    </div>
+    <script>     
+        new Vue({
+            el: "#scroll-area",
+            data: {
+                msg: "滚动",
+                list: [] ,
+                reachBottomDistance: 100,
+                isReachBottom: false,
+                scrollHeight: 0,
+                offsetHeight: 0
+            },
+            beforeMount() {
+                this.addNumber();
+            },
+            mounted() {
+                const target = document.getElementById("scroll-area");
+                this.scrollHeight = target.scrollHeight;
+                this.offsetHeight = Math.ceil(target.getBoundingClientRect().height);
+            },
+            methods: {
+                onScroll(e) {
+                    const target = e.target;
+                    const scrollTop = target.scrollTop;
+                    if(offsetHeight + scrollTop < this.scrollHeight && this.isReachBottom) {
+                        this.isReachBottom = false;
+                    }
+                    if(this.isReachBottom) {
+                        return;
+                    }
+                    if(offsetHeight + scrollTop + this.reachBottomDistance >= this.scrollHeight) {
+                        this.isReachBottom = true;
+                        console.log("botton");
+                    }
+                },
+                addNumber() {
+                    var added = [];
+                    for(var i = 0; i < 50; i ++) {
+                        added.push(Math.random());
+                    }
+                    this.list = this.list.concat(added);
+                }
+            }
+        })
+     </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debounce</title>
+    <style>
+        #container {
+            width: 100%;
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+            color: #fff;
+            background-color: #444;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+        var count = 1;
+        var container = document.getElementById("container");
+
+        function getUserAction(e) {
+            container.innerHTML = count ++;
+            console.log(this);
+            console.log(e);
+            return count;
+        }
+
+        // container.onmousemove = getUserAction;
+
+        // //1.x
+        // function debounce(func, wait) {
+        //     var timeout;
+        //     return function() {
+        //         clearTimeout(timeout);
+        //         timeout = setTimeout(func, wait);
+        //     };
+        // }
+
+         //2.x this
+        // function debounce(func, wait) {
+        //     var timeout;
+        //     return function() {
+        //         clearTimeout(timeout);
+        //         timeout = setTimeout(() => {
+        //             func.apply(this);
+        //         }, wait);
+        //     };
+        // }
+
+        //  //3.x arguments
+        // function debounce(func, wait) {
+        //     var timeout;
+        //     return function() {
+        //         clearTimeout(timeout);
+        //         var args = arguments;
+        //         timeout = setTimeout(() => {
+        //             func.apply(this, args);
+        //         }, wait);
+        //     };
+        // }
+
+        // container.onmousemove = debounce(getUserAction, 1000);
+
+        //4.x immediate
+        // function debounce(func, wait, immediate) {
+        //     var timeout;
+        //     return function() {
+        //         var args = arguments;
+        //         if(timeout) {
+        //             clearTimeout(timeout);
+        //         }
+        //         if(immediate) {
+        //             var callNow = !timeout;
+        //             console.log("timeout:" + timeout + " callNow:" + callNow);
+        //             timeout = setTimeout(() => {
+        //                 timeout = null;
+        //             }, wait);
+        //             if(callNow) {
+        //                 func.apply(this, args);
+        //             }
+        //         }else {
+        //             timeout = setTimeout(() => {
+        //                 func.apply(this, args);
+        //             }, wait);
+        //         }
+        //     };
+        // }
+
+        //5.x return value
+        // function debounce(func, wait, immediate) {
+        //     var timeout, result;
+        //     return function() {
+        //         var args = arguments;
+        //         if(timeout) {
+        //             clearTimeout(timeout);
+        //         }
+        //         if(immediate) {
+        //             var callNow = !timeout;
+        //             // console.log("timeout:" + timeout + " callNow:" + callNow);
+        //             timeout = setTimeout(() => {
+        //                 timeout = null;
+        //             }, wait);
+        //             if(callNow) {
+        //                 result = func.apply(this, args);
+        //             }
+        //         }else {
+        //             timeout = setTimeout(() => {
+        //                 func.apply(this, args);
+        //             }, wait);
+        //         }
+        //         return result;
+        //     };
+        // }
+
+        // container.onmousemove = debounce(getUserAction, 1000, false);
+
+        //6.x add cancel
+        function debounce(func, wait, immediate) {
+            var timeout, result;
+            var debounced = function() {
+                var args = arguments;
+                if(timeout) {
+                    clearTimeout(timeout);
+                }
+                if(immediate) {
+                    var callNow = !timeout;
+                    // console.log("timeout:" + timeout + " callNow:" + callNow);
+                    timeout = setTimeout(() => {
+                        timeout = null;
+                    }, wait);
+                    if(callNow) {
+                        result = func.apply(this, args);
+                    }
+                }else {
+                    timeout = setTimeout(() => {
+                        func.apply(this, args);
+                    }, wait);
+                }
+                return result;
+            };
+
+            debounced.cancel = function() {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+
+            return debounced;
+        }
+    </script>
+</body>
+</html>

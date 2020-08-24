@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script lang="javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <title>read excel</title>
+</head>
+<body>
+    <input type="file" id="loader">
+    <script>
+        //https://www.cnblogs.com/liuxianan/p/js-excel.html
+        function readWorkbookFromLocalFile(file, callback) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {type: 'binary'});
+                if(callback) callback(workbook);
+            };
+            reader.readAsBinaryString(file);
+        }
+
+        function outputWorkbook(workbook) {
+            var sheetNames = workbook.SheetNames; // 工作表名称集合
+            // sheetNames.forEach(name => {});
+            var worksheet = workbook.Sheets["Return and Risk Data"]; // 只能通过工作表名称来获取指定工作表
+            var data = {};
+
+            for(var key in worksheet) {
+                // v是读取单元格的原始值
+                console.log(key, key[0] === '!' ? worksheet[key] : worksheet[key].v);
+            }
+        }
+
+        document.getElementById("loader").addEventListener("change", (e) => {
+            console.log(e);
+            readWorkbookFromLocalFile(e.target.files[0], outputWorkbook);
+        });
+
+    </script>
+</body>
+</html>

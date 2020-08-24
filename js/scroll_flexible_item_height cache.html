@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll with fixed item height</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style>
+        .list-view {
+            height: 400px;
+            overflow: auto;
+            position: relative;
+            border: 1px solid #666;
+        }
+        ​
+        .list-view-phantom {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            z-index: -1;
+        }
+        ​
+        .list-view-content {
+            left: 0;
+            right: 0;
+            top: 0;
+            position: absolute;
+        }
+        ​
+        .list-view-item {
+            padding: 5px;
+            color: #666;
+            height: 30px;
+            line-height: 30px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="list-view" @scroll="onScroll">
+        <div class="list-view-phantom" :style="contentHeight"></div>
+        <div ref="content" class="list-view-content">
+            <div class="list-view-item" v-for="item in visibleData">{{item.value}}</div>
+        </div>
+    </div>
+    <script>     
+        // https://juejin.im/entry/6844903577631227912
+        new Vue({
+            el: ".list-view",
+            data: {
+                start: 0,
+                lastMeasuredIndex: -1,
+                visibleData: [],
+                sizeAndOffsetCache: {},
+                estimatedItemSize: 30
+            },
+            computed: {
+                contentHeight() {
+                    let total = 0;
+                    if(this.lastMeasuredIndex >= 0) {
+                        const lastMeasured = this.getLastMeasuredSizeAndOffset();
+                        total = lastMeasured.offset + lastMeasured.size + (this.allData.length -1 - this.lastMeasuredIndex) * this.estimatedItemSize;
+                    }else {
+                        total = this.allData.length * this.estimatedItemSize;
+                    }
+                    return  total + 'px' ;
+                }
+            },
+            beforeCreate() {
+                let i = 0;
+                this.allData = [];
+                while(i < 10000) {
+                    this.allData.push({
+                        value: Math.random()
+                    });
+                    i++;
+                }
+
+                this.itemSizeGetter = function(item, index) {
+                    //TODO
+                    if(index % 2 === 0) {
+                        return 20;
+                    }
+                    return 30;
+                };
+            },
+            mounted() {
+                this.updateVisibleData();
+            },
+            methods: {
+                onScroll(e) {
+                    const scrollTop = this.$el.scrollTop;
+                    this.updateVisibleData(scrollTop);
+                },
+                updateVisibleData(scrollTop = 0) {
+                    this.start = this.findNearestItemIndex(scrollTop);
+                    this.end = this.findNearestItemIndex(scrollTop + this.$el.clientHeight);
+                    this.visibleData = this.allData.slice(this.start, this.end + 1);
+                    // 把可见区域的 top 设置为起始元素在整个列表中的位置（使用 transform 是为了更好的性能）
+                    this.$refs.content.style.webkitTransform = `translate3d(0, ${this.getItemSizeAndOffset(this.start).offset}px, 0)`;
+                },
+                findNearestItemIndex(scrollTop) {
+                    let top = 0;
+                    for(let i=0, j = this.allData.length; i<j; i++) {
+                        const size = this.getItemSizeAndOffset(i).size;
+                        top += size;
+                        if(top > scrollTop || i === j-1) {
+                            return i;
+                        }
+                    }
+                    return 0;
+                },
+                getItemSizeAndOffset(index) {
+                    if(this.lastMeasuredIndex >= index) {
+                        return this.sizeAndOffsetCache[index];
+                    }
+                    const lastMeasured = this.getLastMeasuredSizeAndOffset();
+                    let offset = lastMeasured.offset + lastMeasured.size;  
+                    for(let i= this.lastMeasuredIndex + 1; i <= index; i++ ) {
+                        const size = this.itemSizeGetter(this.allData[i], i);
+                        this.sizeAndOffsetCache[i] = {
+                            size: size,
+                            offset: offset
+                        };
+                        offset += size;
+                    }
+                    if(index > this.lastMeasuredIndex) {
+                        this.lastMeasuredIndex = index;
+                    }
+
+                    return this.sizeAndOffsetCache[index];
+                },
+                getLastMeasuredSizeAndOffset() {
+                    return this.lastMeasuredIndex >= 0 ? this.sizeAndOffsetCache[this.lastMeasuredIndex] : {
+                        offset: 0,
+                        size: 0
+                    };
+                }
+            }
+        })
+     </script>
+</body>
+</html>

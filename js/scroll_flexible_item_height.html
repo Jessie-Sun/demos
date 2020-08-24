@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll with fixed item height</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style>
+        .list-view {
+            height: 400px;
+            overflow: auto;
+            position: relative;
+            border: 1px solid #666;
+        }
+        ​
+        .list-view-phantom {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            z-index: -1;
+        }
+        ​
+        .list-view-content {
+            left: 0;
+            right: 0;
+            top: 0;
+            position: absolute;
+        }
+        ​
+        .list-view-item {
+            padding: 5px;
+            color: #666;
+            height: 30px;
+            line-height: 30px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="list-view" @scroll="onScroll">
+        <div class="list-view-phantom" :style="contentHeight"></div>
+        <div ref="content" class="list-view-content">
+            <div class="list-view-item" v-for="item in visibleData">{{item.value}}</div>
+        </div>
+    </div>
+    <script>     
+        new Vue({
+            el: ".list-view",
+            data: {
+                start: 0,
+                end: null,
+                visibleData: []
+            },
+            computed: {
+                contentHeight() {
+                    let total = 0;
+                    this.allData.forEach((item, index) => {
+                        total += this.itemSizeGetter(item, index);
+                    })
+                    return  total + 'px' ;
+                }
+            },
+            beforeCreate() {
+                let i = 0;
+                this.allData = [];
+                while(i < 10000) {
+                    this.allData.push({
+                        value: Math.random()
+                    });
+                    i++;
+                }
+
+                this.itemSizeGetter = function(item, index) {
+                    //TODO
+                };
+            },
+            mounted() {
+                this.updateVisibleData();
+            },
+            methods: {
+                onScroll(e) {
+                    const scrollTop = this.$el.scrollTop;
+                    this.updateVisibleData(scrollTop);
+                },
+                updateVisibleData(scrollTop = 0) {
+                    this.start = this.findNearestItemIndex(scrollTop);
+                    this.end = this.findNearestItemIndex(scrollTop + this.$el.clientHeight);
+                    this.visibleData = this.allData.slice(this.start, this.end + 1);
+                    // 把可见区域的 top 设置为起始元素在整个列表中的位置（使用 transform 是为了更好的性能）
+                    this.$refs.content.style.webkitTransform = `translate3d(0, ${this.getItemOffset(start)}px, 0)`;
+                },
+                findNearestItemIndex(scrollTop) {
+                    let top = 0;
+                    for(let i=0, j = this.allData.length; i<j; i++) {
+                        const size = this.itemSizeGetter(this.allData[i], i);
+                        total += size;
+                        if(total > scrollTop || i === j-1) {
+                            return i;
+                        }
+                    }
+                    return 0;
+                },
+                getItemOffset(index) {
+                    for(let i=0, j = Math.min(index, this.allData.length -1); i <= j; i++ ) {
+                        const size = this.itemSizeGetter(this.allData[i], i);
+                        if(i === j) {
+                            return total;
+                        }
+                        total += size;
+                    }
+                    return 0;
+                }
+            }
+        })
+     </script>
+</body>
+</html>

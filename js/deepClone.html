@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <title>deep clone</title>
+</head>
+<body>
+    <script>
+        /*
+        var deepClone = obj => {
+            const copy = Array.isArray(obj) ? [] : {};
+            //unhandle Date and RegExp
+            for(key in obj) {
+                if(obj.hasOwnProperty(key)) {
+                    copy[key] = obj[key] && typeof obj[key] === "object" ? deepClone(obj[key]) : obj[key];
+                }
+            }
+            return copy;
+        }
+
+        */
+        var num = 1;
+        var str = "123";
+        var bool = true;
+        var nu = null;
+        var undef = undefined;
+        var sym = Symbol();
+        var date = new Date();
+        var fun = new Function();
+        var reg = /abcd/;
+        var arr = [num, str, bool, nu, undef, sym, fun, reg, {a: { b: "123"}}];//not include Date and Regexp
+        var obj = {
+            num,
+            str,
+            bool,
+            nu,
+            undef,
+            sym,
+            date,
+            fun,
+            reg,
+            arr
+        };
+
+        //unhandle Date and RegExp
+        var copy = (obj, deep) => {
+            if(obj === null || (typeof obj!== "object" && typeof obj!== "function")) {
+                return obj;
+            }
+            if(typeof obj === "function") {
+                return new Function("return " + obj.toString())();
+            }else {
+                var value, key, target = Array.isArray(obj) ? [] : {};
+                for(key in obj) {
+                    value = obj[key];
+                    if(value === obj) {
+                        continue;
+                    }
+                    if(deep && (Array.isArray(value) || typeof value === "object")) {
+                        target[key ] = copy(value, deep);
+                    }else {
+                        target[key] = value;
+                    }
+                }
+                return target;
+            }
+        };
+
+
+    </script>
+</body>
+</html>
