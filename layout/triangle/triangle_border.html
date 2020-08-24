@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangle-border</title>
+    <style>
+        .triangle1 {
+            border-bottom: solid 100px black;
+            border-right: solid 100px transparent;
+            border-left: solid 100px transparent;
+            display: inline-block;
+        }
+
+        .triangle2 {
+            width: 0;
+            border-width: 0 80px 100px 80px;
+            border-style: solid;
+            border-color: black transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="triangle1"></div>
+
+    <div class="triangle2"></div>
+</body>
+</html>
